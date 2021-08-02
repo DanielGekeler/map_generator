@@ -40,31 +40,20 @@ type chunk struct {
 
 func parse_chunks_from_region(region string) []chunk {
 	buf, _ := os.ReadFile(filepath) // fully read a region file => []byte
-	raw_locations := buf[:4096]
-	locations := make([][2]int, len(raw_locations)/4)
+	locations := split_bytes(buf[:4096], 4)
+	time_data := split_bytes(buf[4096:8192], 4)
 
-	for index, element := range split_bytes(raw_locations, 4) {
-		pos_bytes := append([]byte{0}, element[:3]...)
-		length := element[len(element)-1]
+	ret := make([]chunk, 1024)
 
-		x := bytes_to_int(pos_bytes)
-		//fmt.Println(index, "\t", x, "\t", x*4096, "\t", length)
+	for i := 0; i < len(ret); i++ {
+		pos := append([]byte{0}, locations[i][:3]...)
+		length := locations[i][3]
 
-		locations[index] = [2]int{x, int(length)}
+		offset := bytes_to_int(pos)
+		chunk_time := bytes_to_int(time_data[i])
+
+		ret[i] = chunk{offset: offset, length: int(length), time: chunk_time}
 	}
 
-	raw_time_data := buf[4096:8192]
-	time_data := make([]int, len(raw_time_data)/4)
-
-	for index, element := range split_bytes(raw_time_data, 4) {
-		time_data[index] = bytes_to_int(element)
-	}
-
-	ret := make([]chunk, len(time_data))
-	for i := 0; i < 1024; i++ {
-		ret[i] = chunk{locations[i][0], locations[i][1], time_data[i]}
-	}
 	return ret
-
-	//fmt.Println(time_data, len(time_data))
 }
