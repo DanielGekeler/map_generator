@@ -11,8 +11,13 @@ const filepath = "region/r.0.0.mca"
 func main() {
 	fmt.Println("Starting")
 
-	chunks := parse_chunks_from_region(filepath)
-	fmt.Println(chunks)
+	/*chunks := parse_chunks_from_region(filepath)
+	fmt.Println(chunks)*/
+
+	for i := 0; i < 1024; i++ {
+		a, b := calculate_chunk_pos(i)
+		fmt.Println(i, "\t", a, "\t", b)
+	}
 }
 
 func split_bytes(buf []byte, lim int) [][]byte {
@@ -32,18 +37,18 @@ func bytes_to_int(input []byte) int {
 	return int(binary.BigEndian.Uint32(input))
 }
 
-type chunk struct {
+type chunk_meta struct {
 	offset int // chunk data offset (as sectors) in region file
 	length int // number of sectors
 	time   int // last modification time of a chunk in epoch seconds
 }
 
-func parse_chunks_from_region(region string) []chunk {
+func parse_chunks_from_region(region string) []chunk_meta {
 	buf, _ := os.ReadFile(filepath) // fully read a region file => []byte
 	locations := split_bytes(buf[:4096], 4)
 	time_data := split_bytes(buf[4096:8192], 4)
 
-	ret := make([]chunk, 1024)
+	ret := make([]chunk_meta, 1024)
 
 	for i := 0; i < len(ret); i++ {
 		pos := append([]byte{0}, locations[i][:3]...)
@@ -52,8 +57,12 @@ func parse_chunks_from_region(region string) []chunk {
 		offset := bytes_to_int(pos)
 		chunk_time := bytes_to_int(time_data[i])
 
-		ret[i] = chunk{offset: offset, length: int(length), time: chunk_time}
+		ret[i] = chunk_meta{offset: offset, length: int(length), time: chunk_time}
 	}
 
 	return ret
+}
+
+func calculate_chunk_pos(index int) (int, int) {
+	return index % 32, index / 32
 }
