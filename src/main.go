@@ -11,12 +11,10 @@ const filepath = "region/r.0.0.mca"
 func main() {
 	fmt.Println("Starting")
 
-	/*chunks := parse_chunks_from_region(filepath)
-	fmt.Println(chunks)*/
+	chunks := parse_chunks_from_region(filepath)
 
-	for i := 0; i < 1024; i++ {
-		a, b := calculate_chunk_pos(i)
-		fmt.Println(i, "\t", a, "\t", b)
+	for _, v := range chunks {
+		fmt.Println(v)
 	}
 }
 
@@ -41,6 +39,7 @@ type chunk_meta struct {
 	offset int // chunk data offset (as sectors) in region file
 	length int // number of sectors
 	time   int // last modification time of a chunk in epoch seconds
+	x, z   int // x and z chunk coordinates inside the region file
 }
 
 func parse_chunks_from_region(region string) []chunk_meta {
@@ -57,7 +56,9 @@ func parse_chunks_from_region(region string) []chunk_meta {
 		offset := bytes_to_int(pos)
 		chunk_time := bytes_to_int(time_data[i])
 
-		ret[i] = chunk_meta{offset: offset, length: int(length), time: chunk_time}
+		x, z := calculate_chunk_pos(i)
+
+		ret[i] = chunk_meta{offset: offset, length: int(length), time: chunk_time, x: x, z: z}
 	}
 
 	return ret
