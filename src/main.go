@@ -11,7 +11,9 @@ const filepath = "region/r.0.0.mca"
 func main() {
 	fmt.Println("Starting")
 
-	chunks := parse_chunks_from_region(filepath)
+	raw_region, _ := os.ReadFile(filepath) // fully read a region file => []byte
+
+	chunks := parse_chunks_from_region(raw_region)
 
 	for _, v := range chunks {
 		fmt.Println(v)
@@ -48,10 +50,9 @@ type chunk_meta struct {
 	compression int
 }
 
-func parse_chunks_from_region(region string) []chunk_meta {
-	buf, _ := os.ReadFile(filepath) // fully read a region file => []byte
-	locations := split_bytes(buf[:4096], 4)
-	time_data := split_bytes(buf[4096:8192], 4)
+func parse_chunks_from_region(region []byte) []chunk_meta {
+	locations := split_bytes(region[:4096], 4)
+	time_data := split_bytes(region[4096:8192], 4)
 
 	ret := make([]chunk_meta, 1024)
 
