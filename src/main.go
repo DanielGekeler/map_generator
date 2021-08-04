@@ -36,10 +36,16 @@ func bytes_to_int(input []byte) int {
 }
 
 type chunk_meta struct {
-	offset int // chunk data offset (as sectors) in region file
-	length int // number of sectors
-	time   int // last modification time of a chunk in epoch seconds
-	x, z   int // x and z chunk coordinates inside the region file
+	offset  int // chunk data offset in 4KiB sectors in region file
+	sectors int // number of sectors
+	time    int // last modification time of a chunk in epoch seconds
+	x, z    int // x and z chunk coordinates inside the region file
+
+	length int // length of the (compressed) data in bytes
+	// 1: GZip (RFC1952) (unused in practice)
+	// 2: Zlib (RFC1950) DEFAULT
+	// 3: uncompressed (unused in practice)
+	compression int
 }
 
 func parse_chunks_from_region(region string) []chunk_meta {
