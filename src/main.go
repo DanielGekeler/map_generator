@@ -65,10 +65,15 @@ func parse_chunks_from_region(region []byte) []chunk_meta {
 
 		x, z := calculate_chunk_pos(i)
 
+		length := bytes_to_int(region[offset*4096 : offset*4096+4])
+		compression := int(region[offset*4096+4])
+
 		ret[i] = chunk_meta{offset: offset,
 			sectors: int(sector_length),
 			time:    chunk_time,
 			x:       x, z: z,
+			length:      length,
+			compression: compression,
 		}
 	}
 
