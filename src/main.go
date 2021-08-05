@@ -1,8 +1,11 @@
 package main
 
 import (
+	"bytes"
+	"compress/zlib"
 	"encoding/binary"
 	"fmt"
+	"io/ioutil"
 	"os"
 )
 
@@ -15,9 +18,9 @@ func main() {
 
 	chunks := parse_chunks_from_region(raw_region)
 
-	for _, v := range chunks {
-		fmt.Println(v)
-	}
+	chunk := chunks[0]
+	nbt := decompress_chunk(chunk, raw_region)
+	fmt.Println(len(nbt))
 }
 
 func split_bytes(buf []byte, lim int) [][]byte {
@@ -82,4 +85,16 @@ func parse_chunks_from_region(region []byte) []chunk_meta {
 
 func calculate_chunk_pos(index int) (int, int) {
 	return index % 32, index / 32
+}
+
+// decompress_chunk takes the specific part of the region and returns a []byte of the raw NBT data
+func decompress_chunk(chunk chunk_meta, region []byte) []byte {
+	a := (chunk.offset * 4096) + 5
+	b := chunk.length
+
+	compressed := bytes.NewBuffer(region[a : a+b])
+	r, _ := zlib.NewReader(compressed)
+	raw_nbt, _ := ioutil.ReadAll(r)
+	r.Close()
+	return raw_nbt
 }
