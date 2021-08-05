@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+
+	"github.com/Tnze/go-mc/save"
 )
 
 const filepath = "region/r.0.0.mca"
@@ -19,8 +21,16 @@ func main() {
 	chunks := parse_chunks_from_region(raw_region)
 
 	chunk := chunks[0]
-	nbt := decompress_chunk(chunk, raw_region)
-	fmt.Println(len(nbt))
+
+	a := (chunk.offset * 4096) + 4
+	b := chunk.length
+	data := raw_region[a : a+b]
+
+	var c save.Column
+	if err := c.Load(data); err != nil {
+		panic(err)
+	}
+	fmt.Println(c.Level.Status)
 }
 
 func split_bytes(buf []byte, lim int) [][]byte {
