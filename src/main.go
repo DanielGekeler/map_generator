@@ -6,6 +6,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io/ioutil"
+	"math"
 	"os"
 
 	"github.com/Tnze/go-mc/save"
@@ -30,7 +31,10 @@ func main() {
 	if err := c.Load(data); err != nil {
 		panic(err)
 	}
-	fmt.Println(c.Level.Status)
+
+	sect := c.Level.Sections[1]
+	fmt.Println(index_bit_length(sect.Palette))
+	fmt.Println(index_bit_length(make([]save.Block, 33)))
 }
 
 func split_bytes(buf []byte, lim int) [][]byte {
@@ -107,4 +111,13 @@ func decompress_chunk(chunk chunk_meta, region []byte) []byte {
 	raw_nbt, _ := ioutil.ReadAll(r)
 	r.Close()
 	return raw_nbt
+}
+
+// Calculate how many bits are needed to index the elements in the pallete of a chunk section
+func index_bit_length(palette []save.Block) int {
+	bits := 4
+	for math.Pow(2.0, float64(bits)) < float64(len(palette)) {
+		bits++
+	}
+	return bits
 }
