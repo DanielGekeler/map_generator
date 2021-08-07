@@ -32,9 +32,17 @@ func main() {
 		panic(err)
 	}
 
-	sect := c.Level.Sections[1]
-	fmt.Println(index_bit_length(sect.Palette))
-	fmt.Println(index_bit_length(make([]save.Block, 33)))
+	var sections [16]save.Chunk
+	for _, v := range c.Level.Sections {
+		if v.Palette != nil {
+			sections[v.Y] = v
+		}
+	}
+	sect := sections[1]
+
+	bit_length := index_bit_length(sect.Palette)
+	x := nbt_to_block(sect.BlockStates[100], sect.Palette, bit_length)
+	fmt.Println(x)
 }
 
 func split_bytes(buf []byte, lim int) [][]byte {
@@ -120,4 +128,23 @@ func index_bit_length(palette []save.Block) int {
 		bits++
 	}
 	return bits
+}
+
+// Parse namespaced block IDs from nbt data
+// Block IDs in each section are asigned an index by the pallete
+// multiple indexes are stored in one int64
+// bit_length is the number of bits needed for an index number in the pallete
+// this function returns a []string of the namespaced block IDs
+func nbt_to_block(long int64, pallete []save.Block, bit_length int) (block_id []string) {
+	// mask works like a subnetmask to get the last (bit_length) bits
+	mask := byte(math.Pow(2.0, float64(bit_length)) - 1)
+
+	// shift the input number by a diffrent amount
+	// with each iteration to get all indexes
+	for i := 0; i < 64/bit_length; i++ {
+		shifted := long >> i * int64(bit_length) // shifting
+		block := shifted & int64(mask)           // get only the last (bit_length) bits
+		block_id = append(block_id, pallete[block].Name)
+	}
+	return
 }
