@@ -1,11 +1,8 @@
 package main
 
 import (
-	"bytes"
-	"compress/zlib"
 	"encoding/binary"
 	"fmt"
-	"io/ioutil"
 	"math"
 	"os"
 
@@ -91,7 +88,7 @@ func calculate_chunk_pos(index int) (int, int) {
 }
 
 // decompress_chunk takes the specific part of the region and returns a []byte of the raw NBT data
-func decompress_chunk(chunk chunk_meta, region []byte) []byte {
+/*func decompress_chunk(chunk chunk_meta, region []byte) []byte {
 	a := (chunk.offset * 4096) + 5
 	b := chunk.length
 
@@ -100,7 +97,7 @@ func decompress_chunk(chunk chunk_meta, region []byte) []byte {
 	raw_nbt, _ := ioutil.ReadAll(r)
 	r.Close()
 	return raw_nbt
-}
+}*/
 
 // Calculate how many bits are needed to index the elements in the pallete of a chunk section
 func index_bit_length(palette []save.Block) int {
