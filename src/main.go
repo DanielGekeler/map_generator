@@ -144,12 +144,7 @@ func visible_blocks(chunk chunk_meta, region []byte) []string {
 		panic(err)
 	}
 
-	var sections [16]save.Chunk // the subchunks sorted by Y index (0-15)
-	for _, v := range c.Level.Sections {
-		if v.Palette != nil {
-			sections[v.Y] = v
-		}
-	}
+	sections := sort_subchunks(c.Level.Sections)
 
 	for i := len(sections) - 1; i >= 0; i-- {
 		sect := sections[i]
@@ -164,4 +159,15 @@ func visible_blocks(chunk chunk_meta, region []byte) []string {
 		}
 	}
 	return nil
+}
+
+// Sort subchunks (16x16x16) by Y index
+func sort_subchunks(sections []save.Chunk) []save.Chunk {
+	ret := make([]save.Chunk, len(sections))
+	for _, v := range sections {
+		if v.Palette != nil {
+			ret[v.Y] = v
+		}
+	}
+	return ret[:]
 }
