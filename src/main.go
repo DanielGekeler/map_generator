@@ -145,19 +145,15 @@ func visible_blocks(chunk chunk_meta, region []byte) []string {
 	}
 
 	sections := sort_subchunks(c.Level.Sections)
+	top_index := top_subchunk(sections)
+	top := sections[top_index]
 
-	for i := len(sections) - 1; i >= 0; i-- {
-		sect := sections[i]
-
-		if len(sect.Palette) > 1 {
-			bit_length := index_bit_length(sect.Palette)
-			for _, v := range sect.BlockStates {
-				x := nbt_to_block(v, sect.Palette, bit_length)
-				fmt.Println(x)
-			}
-			break
-		}
+	bit_length := index_bit_length(top.Palette)
+	for _, v := range top.BlockStates {
+		x := nbt_to_block(v, top.Palette, bit_length)
+		fmt.Println(x)
 	}
+
 	return nil
 }
 
@@ -170,4 +166,14 @@ func sort_subchunks(sections []save.Chunk) []save.Chunk {
 		}
 	}
 	return ret[:]
+}
+
+// Find the highest subchunk with blocks other than air
+func top_subchunk(sections []save.Chunk) int {
+	for i := len(sections) - 1; i >= 0; i-- {
+		if len(sections[i].Palette) > 1 {
+			return i
+		}
+	}
+	return 0
 }
