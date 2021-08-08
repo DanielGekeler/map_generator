@@ -23,26 +23,7 @@ func main() {
 
 	chunk := chunks[0]
 
-	a := (chunk.offset * 4096) + 4
-	b := chunk.length
-	data := raw_region[a : a+b]
-
-	var c save.Column
-	if err := c.Load(data); err != nil {
-		panic(err)
-	}
-
-	var sections [16]save.Chunk
-	for _, v := range c.Level.Sections {
-		if v.Palette != nil {
-			sections[v.Y] = v
-		}
-	}
-	sect := sections[1]
-
-	bit_length := index_bit_length(sect.Palette)
-	x := nbt_to_block(sect.BlockStates[100], sect.Palette, bit_length)
-	fmt.Println(x)
+	visible_blocks(chunk, raw_region)
 }
 
 func split_bytes(buf []byte, lim int) [][]byte {
@@ -142,9 +123,45 @@ func nbt_to_block(long int64, pallete []save.Block, bit_length int) (block_id []
 	// shift the input number by a diffrent amount
 	// with each iteration to get all indexes
 	for i := 0; i < 64/bit_length; i++ {
-		shifted := long >> i * int64(bit_length) // shifting
-		block := shifted & int64(mask)           // get only the last (bit_length) bits
+		shifted := long >> (i * bit_length) // shifting
+		block := shifted & int64(mask)      // get only the last (bit_length) bits
 		block_id = append(block_id, pallete[block].Name)
 	}
 	return
+}
+
+// Get the top most blocks (visible from the top)
+// returns a slice of the namespaced block IDs
+func visible_blocks(chunk chunk_meta, region []byte) []string {
+	// calculate offsets
+	a := (chunk.offset * 4096) + 4
+	b := chunk.length
+
+	data := region[a : a+b] // the raw bytes of the chunk data
+
+	var c save.Column // Column means the whole chunk (0-255)...
+	if err := c.Load(data); err != nil {
+		panic(err)
+	}
+
+	var sections [16]save.Chunk // the subchunks sorted by Y index (0-15)
+	for _, v := range c.Level.Sections {
+		if v.Palette != nil {
+			sections[v.Y] = v
+		}
+	}
+
+	for i := len(sections) - 1; i >= 0; i-- {
+		sect := sections[i]
+
+		if len(sect.Palette) > 1 {
+			bit_length := index_bit_length(sect.Palette)
+			for _, v := range sect.BlockStates {
+				x := nbt_to_block(v, sect.Palette, bit_length)
+				fmt.Println(x)
+			}
+			break
+		}
+	}
+	return nil
 }
