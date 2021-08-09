@@ -48,15 +48,3 @@ type chunk_meta struct {
 	// 3: uncompressed (unused in practice)
 	compression int
 }
-
-// decompress_chunk takes the specific part of the region and returns a []byte of the raw NBT data
-/*func decompress_chunk(chunk chunk_meta, region []byte) []byte {
-	a := (chunk.offset * 4096) + 5
-	b := chunk.length
-
-	compressed := bytes.NewBuffer(region[a : a+b])
-	r, _ := zlib.NewReader(compressed)
-	raw_nbt, _ := ioutil.ReadAll(r)
-	r.Close()
-	return raw_nbt
-}*/
