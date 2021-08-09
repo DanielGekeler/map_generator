@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/binary"
 	"math"
 
 	"github.com/Tnze/go-mc/save"
@@ -80,4 +81,21 @@ func load_chunk(chunk chunk_meta, region []byte) save.Column {
 		panic(err)
 	}
 	return c
+}
+
+func split_bytes(buf []byte, lim int) [][]byte {
+	var chunk []byte
+	chunks := make([][]byte, 0, len(buf)/lim+1)
+	for len(buf) >= lim {
+		chunk, buf = buf[:lim], buf[lim:]
+		chunks = append(chunks, chunk)
+	}
+	if len(buf) > 0 {
+		chunks = append(chunks, buf[:])
+	}
+	return chunks
+}
+
+func bytes_to_int(input []byte) int {
+	return int(binary.BigEndian.Uint32(input))
 }

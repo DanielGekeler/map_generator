@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/binary"
 	"fmt"
 	"os"
 )
@@ -17,23 +16,6 @@ func main() {
 	chunk := chunks[0]
 	c := load_chunk(chunk, raw_region)
 	visible_blocks(c)
-}
-
-func split_bytes(buf []byte, lim int) [][]byte {
-	var chunk []byte
-	chunks := make([][]byte, 0, len(buf)/lim+1)
-	for len(buf) >= lim {
-		chunk, buf = buf[:lim], buf[lim:]
-		chunks = append(chunks, chunk)
-	}
-	if len(buf) > 0 {
-		chunks = append(chunks, buf[:])
-	}
-	return chunks
-}
-
-func bytes_to_int(input []byte) int {
-	return int(binary.BigEndian.Uint32(input))
 }
 
 type chunk_meta struct {
