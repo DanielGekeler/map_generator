@@ -15,12 +15,11 @@ func main() {
 	fmt.Println("Starting")
 
 	raw_region, _ := os.ReadFile(filepath) // fully read a region file => []byte
-
 	chunks := parse_chunks_from_region(raw_region)
 
 	chunk := chunks[0]
-
-	visible_blocks(chunk, raw_region)
+	c := load_chunk(chunk, raw_region)
+	visible_blocks(c)
 }
 
 func split_bytes(buf []byte, lim int) [][]byte {
@@ -129,27 +128,19 @@ func nbt_to_block(long int64, pallete []save.Block, bit_length int) (block_id []
 
 // Get the top most blocks (visible from the top)
 // returns a slice of the namespaced block IDs
-func visible_blocks(chunk chunk_meta, region []byte) []string {
-	// calculate offsets
-	a := (chunk.offset * 4096) + 4
-	b := chunk.length
-
-	data := region[a : a+b] // the raw bytes of the chunk data
-
-	var c save.Column // Column means the whole chunk (0-255)...
-	if err := c.Load(data); err != nil {
-		panic(err)
-	}
-
+func visible_blocks(c save.Column) []string {
 	sections := sort_subchunks(c.Level.Sections)
 	top_index := top_subchunk(sections)
 	top := sections[top_index]
-
 	bit_length := index_bit_length(top.Palette)
+
+	var blocks []string
 	for _, v := range top.BlockStates {
 		x := nbt_to_block(v, top.Palette, bit_length)
-		fmt.Println(x)
+		blocks = append(blocks, x...)
 	}
+
+	fmt.Println(blocks)
 
 	return nil
 }
@@ -173,4 +164,18 @@ func top_subchunk(sections []save.Chunk) int {
 		}
 	}
 	return 0
+}
+
+func load_chunk(chunk chunk_meta, region []byte) save.Column {
+	// calculate offsets
+	a := (chunk.offset * 4096) + 4
+	b := chunk.length
+
+	data := region[a : a+b] // the raw bytes of the chunk data
+
+	var c save.Column // Column means the whole chunk (0-255)...
+	if err := c.Load(data); err != nil {
+		panic(err)
+	}
+	return c
 }
