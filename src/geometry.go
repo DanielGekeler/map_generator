@@ -45,3 +45,9 @@ func top_subchunk(sections []save.Chunk) int {
 	}
 	return 0
 }
+
+// calculate the index of a block inside a subchunk
+// given xyz coordinates inside a subchunk
+func xyz_to_index(x, y, z int) int {
+	return (y * 16 * 16) + (z * 16) + x
+}
