@@ -10,13 +10,8 @@ func visible_blocks(c save.Column) (vis [16][16]string) {
 	sections := sort_subchunks(c.Level.Sections)
 	top_index := top_subchunk(sections)
 	top := sections[top_index]
-	bit_length := index_bit_length(top.Palette)
 
-	var blocks []string
-	for _, v := range top.BlockStates {
-		x := nbt_to_block(v, top.Palette, bit_length)
-		blocks = append(blocks, x...)
-	}
+	blocks := blocks_in_section(top)
 
 	vis = y_hunter(blocks)
 	return
@@ -78,4 +73,15 @@ func grid_complete(grid [16][16]string) bool {
 		}
 	}
 	return true
+}
+
+// get a slice of the blocks in a subchunk
+func blocks_in_section(section save.Chunk) (blocks []string) {
+	bit_length := index_bit_length(section.Palette)
+
+	for _, v := range section.BlockStates {
+		x := nbt_to_block(v, section.Palette, bit_length)
+		blocks = append(blocks, x...)
+	}
+	return
 }
