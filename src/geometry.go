@@ -66,3 +66,16 @@ func y_hunter(blocks []string) (ret [16][16]string) {
 	}
 	return
 }
+
+// iterate over a 2d slice of namespaced block IDs
+// return false if one isn't populated
+func grid_complete(grid [16][16]string) bool {
+	for _, x := range grid {
+		for _, z := range x {
+			if z == "" {
+				return false
+			}
+		}
+	}
+	return true
+}
