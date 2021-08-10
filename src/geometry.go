@@ -8,12 +8,30 @@ import (
 // returns a slice of the namespaced block IDs
 func visible_blocks(c save.Column) (vis [16][16]string) {
 	sections := sort_subchunks(c.Level.Sections)
-	top_index := top_subchunk(sections)
-	top := sections[top_index]
+	index := top_subchunk(sections)
+	top := sections[index]
 
 	blocks := blocks_in_section(top)
-
 	vis = y_hunter(blocks)
+
+	for !grid_complete(vis) {
+		index -= 1
+		section := sections[index]
+		blocks := blocks_in_section(section)
+
+		for xi, x := range vis { // find unpopulated X
+			for zi, z := range x { // same for z
+				for y := 15; y >= 0; y-- {
+					i := xyz_to_index(xi, y, zi)
+					if z != "minecraft:air" && vis[xi][zi] == "" && blocks[i] != "minecraft:air" {
+						vis[xi][zi] = blocks[i]
+						break
+					}
+				}
+			}
+		}
+	}
+
 	return
 }
 
