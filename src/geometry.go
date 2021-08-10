@@ -1,14 +1,12 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/Tnze/go-mc/save"
 )
 
 // Get the top most blocks (visible from the top)
 // returns a slice of the namespaced block IDs
-func visible_blocks(c save.Column) []string {
+func visible_blocks(c save.Column) (vis [16][16]string) {
 	sections := sort_subchunks(c.Level.Sections)
 	top_index := top_subchunk(sections)
 	top := sections[top_index]
@@ -20,9 +18,8 @@ func visible_blocks(c save.Column) []string {
 		blocks = append(blocks, x...)
 	}
 
-	fmt.Println(blocks)
-
-	return nil
+	vis = y_hunter(blocks)
+	return
 }
 
 // Sort subchunks (16x16x16) by Y index
@@ -50,4 +47,22 @@ func top_subchunk(sections []save.Chunk) int {
 // given xyz coordinates inside a subchunk
 func xyz_to_index(x, y, z int) int {
 	return (y * 16 * 16) + (z * 16) + x
+}
+
+// iterate over the slice of the blocks in a subchunk
+// return a 2d slice of the lowest block in each XZ postition
+// also: great function name
+func y_hunter(blocks []string) (ret [16][16]string) {
+	for x := 0; x < 16; x++ { // iterate over the x axis
+		for z := 0; z < 16; z++ { // z axis
+			for y := 15; y >= 0; y-- { // y axis from top to bottom
+				i := xyz_to_index(x, y, z)
+				if b := blocks[i]; b != "minecraft:air" {
+					ret[x][z] = b
+					break
+				}
+			}
+		}
+	}
+	return
 }
