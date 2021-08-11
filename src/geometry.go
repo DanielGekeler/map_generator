@@ -6,7 +6,7 @@ import (
 
 // Get the top most blocks (visible from the top)
 // returns a slice of the namespaced block IDs
-func visible_blocks(c save.Column) (vis [16][16]string) {
+func visible_blocks(c save.Column) (vis chunk2d) {
 	sections := sort_subchunks(c.Level.Sections)
 	index := top_subchunk(sections)
 	top := sections[index]
@@ -47,9 +47,9 @@ func xyz_to_index(x, y, z int) int {
 }
 
 // iterate over the slice of the blocks in a subchunk
-// return a 2d slice of the lowest block in each XZ postition
+// return a chunk2d object of the lowest block in each XZ postition
 // also: great function name
-func y_hunter(blocks []string) (ret [16][16]string) {
+func y_hunter(blocks []string) (ret chunk2d) {
 	for x := 0; x < 16; x++ { // iterate over the x axis
 		for z := 0; z < 16; z++ { // z axis
 			for y := 15; y >= 0; y-- { // y axis from top to bottom
@@ -64,8 +64,8 @@ func y_hunter(blocks []string) (ret [16][16]string) {
 	return
 }
 
-// iterate over a grid of blocks and return a list of missing positions
-func find_missing(grid [16][16]string) (pos [][2]int) {
+// iterate over a chunk2d and return a list of missing positions
+func find_missing(grid chunk2d) (pos [][2]int) {
 	for xi, x := range grid {
 		for zi, z := range x {
 			if z == "" {
@@ -87,10 +87,11 @@ func blocks_in_section(section save.Chunk) (blocks []string) {
 	return
 }
 
-// Recursive function that searches missing blocks in a [][]string of namespaced block IDs
+// Recursive function that searches missing blocks in a block2d object
 // each iteration of add_missing searches a lower subchunk then the one before it
 // until it is complete or the bottom of the world is reached
-func add_missing(blocks [16][16]string, sections []save.Chunk, index int) [16][16]string {
+// resulting in a chunk2d object with all blocks visible from the top
+func add_missing(blocks chunk2d, sections []save.Chunk, index int) chunk2d {
 	missing := find_missing(blocks)
 	if len(missing) == 0 || index == 0 { // return if complete
 		return blocks
