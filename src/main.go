@@ -13,9 +13,13 @@ func main() {
 	raw_region, _ := os.ReadFile(filepath) // fully read a region file => []byte
 	chunks := parse_chunks_from_region(raw_region)
 
-	chunk := chunks[0]
+	chunk := chunks[32]
 	c := load_chunk(chunk, raw_region)
-	visible_blocks(c)
+	vis := visible_blocks(c)
+	fmt.Println(chunk.x, chunk.z)
+	for _, v := range vis {
+		fmt.Println(v[0])
+	}
 }
 
 type chunk_meta struct {
@@ -30,3 +34,8 @@ type chunk_meta struct {
 	// 3: uncompressed (unused in practice)
 	compression int
 }
+
+// chunk2d is a 2d slice of namespaced block IDs
+// used to store a flat slice of a chunk
+// or blocks visible from the top
+type chunk2d [16][16]string
