@@ -14,23 +14,7 @@ func visible_blocks(c save.Column) (vis [16][16]string) {
 	blocks := blocks_in_section(top)
 	vis = y_hunter(blocks)
 
-	for !grid_complete(vis) {
-		index -= 1
-		section := sections[index]
-		blocks := blocks_in_section(section)
-
-		for xi, x := range vis { // find unpopulated X
-			for zi, z := range x { // same for z
-				for y := 15; y >= 0; y-- {
-					i := xyz_to_index(xi, y, zi)
-					if z != "minecraft:air" && vis[xi][zi] == "" && blocks[i] != "minecraft:air" {
-						vis[xi][zi] = blocks[i]
-						break
-					}
-				}
-			}
-		}
-	}
+	vis = add_missing(vis, sections, index)
 
 	return
 }
@@ -101,4 +85,37 @@ func blocks_in_section(section save.Chunk) (blocks []string) {
 		blocks = append(blocks, x...)
 	}
 	return
+}
+
+// Recursive function that searches missing blocks in a [][]string of namespaced block IDs
+// each iteration of add_missing searches a lower subchunk then the one before it
+// until it is complete or the bottom of the world is reached
+func add_missing(blocks [16][16]string, sections []save.Chunk, index int) [16][16]string {
+	missing := find_missing(blocks)
+	if len(missing) == 0 || index == 0 { // return if complete
+		return blocks
+	}
+	index -= 1
+	new_section := sections[index]
+	new_blocks := blocks_in_section(new_section)
+
+	// iterate over the list of missing blocks
+	for _, v := range missing {
+		// x and z coordinates (realtive to chunk border)
+		// of the missing block
+		x := v[0]
+		z := v[1]
+
+		// iterate over the Y axis to find the highest non air block
+		for y := 15; y >= 0; y-- {
+			i := xyz_to_index(x, y, z)
+			if new_blocks[i] != "minecraft:air" {
+				// store the block that got found
+				blocks[x][z] = new_blocks[i]
+				// exit the Y loop (search for the next missing block)
+				break
+			}
+		}
+	}
+	return add_missing(blocks, sections, index)
 }
