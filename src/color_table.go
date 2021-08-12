@@ -44,3 +44,7 @@ func load_rgb_map() error {
 
 	return err
 }
+
+func is_transparent(block string) bool {
+	return color_id[block] == 0
+}
