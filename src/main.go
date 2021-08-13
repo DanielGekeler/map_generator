@@ -13,13 +13,36 @@ func main() {
 	raw_region, _ := os.ReadFile(filepath) // fully read a region file => []byte
 	chunks := parse_chunks_from_region(raw_region)
 
-	chunk := chunks[34]
+	pos1 := pos2d{0, 0}
+	pos2 := pos2d{127, 127}
+	bla := needed_chunks(pos1, pos2)
+
+	pixelpipe := make(chan mappixel)
+
+	for _, v := range bla {
+		i := calculate_chunk_index(v.X, v.Z)
+		chunk := chunks[i]
+		go render_chunk(pixelpipe, chunk, raw_region)
+	}
+
+	i := 0
+	for v := range pixelpipe {
+		fmt.Println(v, i)
+		i++
+		if i > 13690 {
+			break
+		}
+	}
+
+	//fmt.Println(len(needed_regions([]pos2d{{-1, -1}, {1, 1}})))
+
+	/*chunk := chunks[34]
 	c := load_chunk(chunk, raw_region)
 	vis := visible_blocks(c)
 	fmt.Println(chunk.x, chunk.z)
 	for _, v := range vis[15] {
 		fmt.Println(v)
-	}
+	}*/
 }
 
 type chunk_meta struct {
