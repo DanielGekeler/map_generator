@@ -41,6 +41,10 @@ func calculate_chunk_pos(index int) (int, int) {
 	return index % 32, index / 32
 }
 
+func calculate_chunk_index(x, z int) int {
+	return x + z*32
+}
+
 // Calculate how many bits are needed to index the elements in the pallete of a chunk section
 func index_bit_length(palette []save.Block) int {
 	bits := 4
