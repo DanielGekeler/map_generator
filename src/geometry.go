@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+	"math"
+
 	"github.com/Tnze/go-mc/save"
 )
 
@@ -119,4 +122,25 @@ func add_missing(blocks chunk2d, sections []save.Chunk, index int) chunk2d {
 		}
 	}
 	return add_missing(blocks, sections, index)
+}
+
+// calculate the chunk coordinates of all chunks
+// within a given area. pos1,pos2 are block coordinates
+// pos1 needs to be north west
+// pos2 needs to be south east
+// returns a slice of chunk coordinates
+func needed_chunks(pos1, pos2 pos2d) (ret []pos2d) {
+	x1 := int(math.Floor(float64(pos1.X) / 16.0))
+	z1 := int(math.Floor(float64(pos1.Z) / 16.0))
+
+	x2 := int(math.Floor(float64(pos2.X) / 16.0))
+	z2 := int(math.Floor(float64(pos2.Z) / 16.0))
+
+	for i := x1; i <= x2; i++ {
+		for u := z1; u <= z2; u++ {
+			fmt.Println(i, u)
+			ret = append(ret, pos2d{i, u})
+		}
+	}
+	return
 }
