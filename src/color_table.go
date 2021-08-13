@@ -18,18 +18,16 @@ var _ error = json.Unmarshal(json_colors, &color_id)
 //go:embed data/rgb_map.json
 var json_rgb_map []byte
 
-var rgb_map color.Palette // map color IDs to rgb values
-// VVV initialize rgb_map (this runs before main)
-var _ error = load_rgb_map()
+var rgb_map color.Palette = load_rgb_map() // map color IDs to rgb values
 
 // NEVER CALL!!!
 // load_rgb_map() parses the embedded json in json_rgb_map
 // and stores it in (global variable) rgb_map
-func load_rgb_map() error {
+func load_rgb_map() (ret color.Palette) {
 	var raw map[string]string // json data
-	err := json.Unmarshal(json_rgb_map, &raw)
+	json.Unmarshal(json_rgb_map, &raw)
 
-	rgb_map = make(color.Palette, len(raw)+1) // give rgb_map a length
+	ret = make(color.Palette, len(raw)+1) // give ret a length
 
 	// each iteration => one color
 	for i, v := range raw {
@@ -43,11 +41,11 @@ func load_rgb_map() error {
 			rgb[x] = uint8(k)
 		}
 
-		// populate rgb_map with a new color.RGBA object
-		rgb_map[index] = color.RGBA{rgb[0], rgb[1], rgb[2], 255}
+		// populate ret with a new color.RGBA object
+		ret[index] = color.RGBA{rgb[0], rgb[1], rgb[2], 0xff}
 	}
 
-	return err
+	return
 }
 
 // check if a block is transparent using color_id
