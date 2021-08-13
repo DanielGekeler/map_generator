@@ -144,3 +144,23 @@ func needed_chunks(pos1, pos2 pos2d) (ret []pos2d) {
 	}
 	return
 }
+
+func needed_regions(chunks []pos2d) (ret []pos2d) {
+	a := pos2d{chunks[0].X, chunks[0].Z}
+	l := len(chunks) - 1
+	b := pos2d{chunks[l].X, chunks[l].Z}
+
+	x1 := int(math.Floor(float64(a.X) / 32.0))
+	z1 := int(math.Floor(float64(a.Z) / 32.0))
+
+	x2 := int(math.Floor(float64(b.X) / 32.0))
+	z2 := int(math.Floor(float64(b.Z) / 32.0))
+
+	for i := x1; i <= x2; i++ {
+		for u := z1; u <= z2; u++ {
+			fmt.Println(i, u)
+			ret = append(ret, pos2d{i, u})
+		}
+	}
+	return
+}
