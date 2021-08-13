@@ -54,7 +54,7 @@ func y_hunter(blocks []string) (ret chunk2d) {
 		for z := 0; z < 16; z++ { // z axis
 			for y := 15; y >= 0; y-- { // y axis from top to bottom
 				i := xyz_to_index(x, y, z)
-				if b := blocks[i]; b != "minecraft:air" {
+				if b := blocks[i]; !is_transparent(b) {
 					ret[x][z] = b
 					break
 				}
@@ -110,7 +110,7 @@ func add_missing(blocks chunk2d, sections []save.Chunk, index int) chunk2d {
 		// iterate over the Y axis to find the highest non air block
 		for y := 15; y >= 0; y-- {
 			i := xyz_to_index(x, y, z)
-			if new_blocks[i] != "minecraft:air" {
+			if !is_transparent(new_blocks[i]) {
 				// store the block that got found
 				blocks[x][z] = new_blocks[i]
 				// exit the Y loop (search for the next missing block)
