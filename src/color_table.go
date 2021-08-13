@@ -12,14 +12,19 @@ import (
 var json_colors []byte
 
 var color_id map[string]int // map namespaced block IDs to color IDs
+// VVV initialize color_id (this runs before main)
 var _ error = json.Unmarshal(json_colors, &color_id)
 
 //go:embed data/rgb_map.json
 var json_rgb_map []byte
 
 var rgb_map color.Palette // map color IDs to rgb values
+// VVV initialize rgb_map (this runs before main)
 var _ error = load_rgb_map()
 
+// NEVER CALL!!!
+// load_rgb_map() parses the embedded json in json_rgb_map
+// and stores it in (global variable) rgb_map
 func load_rgb_map() error {
 	var raw map[string]string // json data
 	err := json.Unmarshal(json_rgb_map, &raw)
@@ -45,6 +50,7 @@ func load_rgb_map() error {
 	return err
 }
 
+// check if a block is transparent using color_id
 func is_transparent(block string) bool {
 	return color_id[block] == 0
 }
