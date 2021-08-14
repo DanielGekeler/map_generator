@@ -28,6 +28,7 @@ func load_rgb_map() (ret color.Palette) {
 	json.Unmarshal(json_rgb_map, &raw)
 
 	ret = make(color.Palette, len(raw)+1) // give ret a length
+	ret[0] = color.RGBA{0, 0, 0, 0}       // make color id 0 transparent
 
 	// each iteration => one color
 	for i, v := range raw {
