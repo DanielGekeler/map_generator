@@ -161,3 +161,11 @@ func needed_regions(chunks []pos2d) (ret []pos2d) {
 	}
 	return
 }
+
+// calculate in which chunk, a given block is
+// block pos => chunk pos
+func block_pos_to_chunk(block pos2d) pos2d {
+	x := int(math.Floor(float64(block.X) / 16.0))
+	z := int(math.Floor(float64(block.Z) / 16.0))
+	return pos2d{x, z}
+}
