@@ -42,3 +42,6 @@ type chunk2d [16][16]string
 
 // pos2d is used to strore a 2 dimensional position
 type pos2d struct{ X, Z int }
+
+// describe a single pixel on a map (pos & color)
+type mappixel struct{ x, z, color int }
