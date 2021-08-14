@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"math"
 
 	"github.com/Tnze/go-mc/save"
@@ -138,7 +137,6 @@ func needed_chunks(pos1, pos2 pos2d) (ret []pos2d) {
 
 	for i := x1; i <= x2; i++ {
 		for u := z1; u <= z2; u++ {
-			fmt.Println(i, u)
 			ret = append(ret, pos2d{i, u})
 		}
 	}
@@ -158,7 +156,6 @@ func needed_regions(chunks []pos2d) (ret []pos2d) {
 
 	for i := x1; i <= x2; i++ {
 		for u := z1; u <= z2; u++ {
-			fmt.Println(i, u)
 			ret = append(ret, pos2d{i, u})
 		}
 	}
