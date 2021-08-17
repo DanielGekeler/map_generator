@@ -28,25 +28,19 @@ func draw_map(chn chan mappixel, filename string, x, z int) {
 	f.Close()
 }
 
-func render_chunk(chunk chunk_meta, region []byte, chn chan mappixel, min, max pos2d) {
+func render_chunk(chunk chunk_meta, region []byte, chn chan mappixel, begin pos2d) {
 	c := load_chunk(chunk, region)
 	vis := visible_blocks(c)
 
-	for xi, x := range vis {
-		stopx := xi + (chunk.x * 16)
-		if stopx < min.X || stopx > max.X {
-			continue
-		}
-		for zi, z := range x {
-			stopz := zi + (chunk.z * 16)
-			if stopz < min.Z || stopz > max.Z {
-				continue
-			}
+	x_off := (16 * chunk.x) - begin.X
+	z_off := (16 * chunk.z) - begin.Z
 
+	for xi, x := range vis {
+		for zi, z := range x {
 			color := color_id[z]
 
-			a := xi + (16 * chunk.x) - min.X
-			b := zi + (16 * chunk.z) - min.Z
+			a := xi + x_off
+			b := zi + z_off
 			chn <- mappixel{a, b, color}
 		}
 	}
