@@ -9,13 +9,17 @@ import (
 // chn: channel for the pixel data
 // filename: path to export the png image
 // x,z: size of the image
-func draw_map(chn chan mappixel, filename string, x, z int) {
+func draw_map(chn chan mappixel, filename string, x, z, pixels int) {
 	upLeft := image.Point{0, 0}
 	lowRight := image.Point{x, z}
 	img := image.NewRGBA(image.Rectangle{upLeft, lowRight})
-	pixels := x * z
+	//pixels := x * z
 
 	for v := range chn {
+		if v == nilpixel {
+			pixels -= 256
+			continue
+		}
 		img.Set(v.x, v.z, rgb_map[v.color])
 		pixels--
 		if pixels == 0 {
@@ -29,7 +33,11 @@ func draw_map(chn chan mappixel, filename string, x, z int) {
 }
 
 func render_chunk(chunk chunk_meta, region []byte, chn chan mappixel, begin pos2d) {
-	c := load_chunk(chunk, region)
+	c, err := load_chunk(chunk, region)
+	if err != nil || len(c.Level.Sections) == 0 {
+		chn <- nilpixel
+		return
+	}
 	vis := visible_blocks(c)
 
 	x_off := (16 * chunk.x) - begin.X
@@ -44,4 +52,10 @@ func render_chunk(chunk chunk_meta, region []byte, chn chan mappixel, begin pos2
 			chn <- mappixel{a, b, color}
 		}
 	}
+}
+
+func calc_pixels(a, b pos2d) int {
+	a0 := block_pos_to_chunk(a)
+	b0 := block_pos_to_chunk(b)
+	return (b0.X - a0.X + 1) * 16 * (b0.Z - a0.Z + 1) * 16
 }
