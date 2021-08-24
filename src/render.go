@@ -1,27 +1,5 @@
 package main
 
-<<<<<<< HEAD
-import "image/color"
-
-type mappixel struct {
-	c    color.Color
-	x, z int
-}
-
-func render_chunk(chn chan mappixel, chunk chunk_meta, region []byte) {
-	c := load_chunk(chunk, region)
-	vis := visible_blocks(c)
-
-	for x, a := range vis {
-		for z, b := range a {
-			color := color_id[b]
-			rgb := rgb_map[color]
-
-			chn <- mappixel{rgb, x, z}
-		}
-	}
-}
-=======
 import (
 	"image"
 	"image/png"
@@ -81,4 +59,3 @@ func calc_pixels(a, b pos2d) int {
 	b0 := block_pos_to_chunk(b)
 	return (b0.X - a0.X + 1) * 16 * (b0.Z - a0.Z + 1) * 16
 }
->>>>>>> rendering

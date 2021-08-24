@@ -1,48 +1,29 @@
 package main
 
 import (
-	"fmt"
 	"os"
 )
 
 const filepath = "region/r.0.0.mca"
 
 func main() {
-	fmt.Println("Starting")
+	pos1 := pos2d{0, 0}
+	pos2 := pos2d{511, 511}
+	pixelpipe := make(chan mappixel)
 
+	for _, region_path := range needed_regions() {
+
+	}
 	raw_region, _ := os.ReadFile(filepath) // fully read a region file => []byte
 	chunks := parse_chunks_from_region(raw_region)
 
-	pos1 := pos2d{0, 0}
-	pos2 := pos2d{127, 127}
-	bla := needed_chunks(pos1, pos2)
-
-	pixelpipe := make(chan mappixel)
-
-	for _, v := range bla {
-		i := calculate_chunk_index(v.X, v.Z)
-		chunk := chunks[i]
-		go render_chunk(pixelpipe, chunk, raw_region)
+	for _, c := range needed_chunks(pos1, pos2) {
+		i := calculate_chunk_index(c.X, c.Z)
+		go render_chunk(chunks[i], raw_region, pixelpipe, pos1)
 	}
 
-	i := 0
-	for v := range pixelpipe {
-		fmt.Println(v, i)
-		i++
-		if i > 13690 {
-			break
-		}
-	}
-
-	//fmt.Println(len(needed_regions([]pos2d{{-1, -1}, {1, 1}})))
-
-	/*chunk := chunks[34]
-	c := load_chunk(chunk, raw_region)
-	vis := visible_blocks(c)
-	fmt.Println(chunk.x, chunk.z)
-	for _, v := range vis[15] {
-		fmt.Println(v)
-	}*/
+	pixels := calc_pixels(pos1, pos2)
+	draw_map(pixelpipe, "img/test6.png", pos2.X-pos1.X+1, pos2.Z-pos1.Z+1, pixels)
 }
 
 type chunk_meta struct {
@@ -68,3 +49,5 @@ type pos2d struct{ X, Z int }
 
 // describe a single pixel on a map (pos & color)
 type mappixel struct{ x, z, color int }
+
+var nilpixel = mappixel{-1, -1, -1}
