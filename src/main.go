@@ -11,9 +11,6 @@ func main() {
 	pos2 := pos2d{511, 511}
 	pixelpipe := make(chan mappixel)
 
-	for _, region_path := range needed_regions() {
-
-	}
 	raw_region, _ := os.ReadFile(filepath) // fully read a region file => []byte
 	chunks := parse_chunks_from_region(raw_region)
 
