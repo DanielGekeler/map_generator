@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"math"
 
 	"github.com/Tnze/go-mc/save"
@@ -138,7 +137,6 @@ func needed_chunks(pos1, pos2 pos2d) (ret []pos2d) {
 
 	for i := x1; i <= x2; i++ {
 		for u := z1; u <= z2; u++ {
-			fmt.Println(i, u)
 			ret = append(ret, pos2d{i, u})
 		}
 	}
@@ -158,9 +156,16 @@ func needed_regions(chunks []pos2d) (ret []pos2d) {
 
 	for i := x1; i <= x2; i++ {
 		for u := z1; u <= z2; u++ {
-			fmt.Println(i, u)
 			ret = append(ret, pos2d{i, u})
 		}
 	}
 	return
+}
+
+// calculate in which chunk, a given block is
+// block pos => chunk pos
+func block_pos_to_chunk(block pos2d) pos2d {
+	x := int(math.Floor(float64(block.X) / 16.0))
+	z := int(math.Floor(float64(block.Z) / 16.0))
+	return pos2d{x, z}
 }

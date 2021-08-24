@@ -73,7 +73,7 @@ func nbt_to_block(long int64, pallete []save.Block, bit_length int) (block_id []
 	return
 }
 
-func load_chunk(chunk chunk_meta, region []byte) save.Column {
+func load_chunk(chunk chunk_meta, region []byte) (save.Column, error) {
 	// calculate offsets
 	a := (chunk.offset * 4096) + 4
 	b := chunk.length
@@ -81,10 +81,8 @@ func load_chunk(chunk chunk_meta, region []byte) save.Column {
 	data := region[a : a+b] // the raw bytes of the chunk data
 
 	var c save.Column // Column means the whole chunk (0-255)...
-	if err := c.Load(data); err != nil {
-		panic(err)
-	}
-	return c
+	err := c.Load(data)
+	return c, err
 }
 
 func split_bytes(buf []byte, lim int) [][]byte {
