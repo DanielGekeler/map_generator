@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"image"
 	"math"
 
 	"github.com/Tnze/go-mc/save"
@@ -143,7 +145,7 @@ func needed_chunks(pos1, pos2 pos2d) (ret []pos2d) {
 	return
 }
 
-func needed_regions(chunks []pos2d) (ret []pos2d) {
+/*func needed_regions(chunks []pos2d) (ret []pos2d) {
 	a := pos2d{chunks[0].X, chunks[0].Z}
 	l := len(chunks) - 1
 	b := pos2d{chunks[l].X, chunks[l].Z}
@@ -160,6 +162,35 @@ func needed_regions(chunks []pos2d) (ret []pos2d) {
 		}
 	}
 	return
+}*/
+
+// get the filenames of all region files inside area
+func needed_regions(area image.Rectangle) (files []string) {
+	a := block_pos_to_region(pos2d_from_Point(area.Min))
+	b := block_pos_to_region(pos2d_from_Point(area.Max))
+
+	for i := a.X; i <= b.X; i++ { // iterate over x
+		for h := a.Z; h <= b.Z; h++ { // iterate over z
+			files = append(files, fmt.Sprintf("r.%v.%v.mca", i, h))
+		}
+	}
+	return
+}
+
+// calculate in which region file a given block coordinates is
+func block_pos_to_region(block pos2d) pos2d {
+	// x axis
+	x := block.X / 512
+	if block.X < 0 { // fix of by one error for negative numbers
+		x -= 1
+	}
+
+	// z axis
+	z := block.Z / 512
+	if block.Z < 0 {
+		z -= 1
+	}
+	return pos2d{x, z}
 }
 
 // calculate in which chunk, a given block is
