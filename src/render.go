@@ -9,12 +9,10 @@ import (
 
 // chn: channel for the pixel data
 // filename: path to export the png image
-// x,z: size of the image
-func draw_map(chn chan mappixel, filename string, x, z, pixels int) {
-	upLeft := image.Point{0, 0}
-	lowRight := image.Point{x, z}
-	img := image.NewRGBA(image.Rectangle{upLeft, lowRight})
-	//pixels := x * z
+// area: image.Rectangle of the area
+func draw_map(chn chan mappixel, filename string, area image.Rectangle) {
+	img := image.NewRGBA(area)
+	pixels := calc_pixels(pos2d_from_Point(img.Rect.Min), pos2d_from_Point(img.Rect.Max))
 
 	for v := range chn {
 		if v == nilpixel {
