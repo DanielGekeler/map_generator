@@ -3,6 +3,7 @@ package main
 import (
 	"image"
 	"image/png"
+	"math"
 	"os"
 )
 
@@ -58,4 +59,17 @@ func calc_pixels(a, b pos2d) int {
 	a0 := block_pos_to_chunk(a)
 	b0 := block_pos_to_chunk(b)
 	return (b0.X - a0.X + 1) * 16 * (b0.Z - a0.Z + 1) * 16
+}
+
+// create a image.Rectangle from 2 specified corners
+// given corners can be on any side as long as they opose each other
+func image_area(a, b pos2d) (area image.Rectangle) {
+	min_x := math.Min(float64(a.X), float64(b.X))
+	min_z := math.Min(float64(a.Z), float64(b.Z))
+	area.Min = image.Point{int(min_x), int(min_z)}
+
+	max_x := math.Max(float64(a.X), float64(b.X))
+	max_z := math.Max(float64(a.Z), float64(b.Z))
+	area.Max = image.Point{int(max_x), int(max_z)}
+	return
 }
