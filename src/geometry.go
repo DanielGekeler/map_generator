@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"image"
 	"math"
 
@@ -174,6 +175,11 @@ func needed_regions(area image.Rectangle) (files []pos2d) {
 		}
 	}
 	return
+}
+
+// get the filename of region file, given the coordinates as pos2d
+func region_filename(p pos2d) string {
+	return fmt.Sprintf("r.%v.%v.mca", p.X, p.Z)
 }
 
 // calculate in which region file a given block coordinates is
