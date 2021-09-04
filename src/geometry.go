@@ -166,8 +166,8 @@ func needed_chunks(pos1, pos2 pos2d) (ret []pos2d) {
 
 // get the filenames of all region files inside area
 func needed_regions(area image.Rectangle) (files []string) {
-	a := block_pos_to_region(pos2d_from_Point(area.Min))
-	b := block_pos_to_region(pos2d_from_Point(area.Max))
+	a := block_pos_to_region(point_to_pos2d(area.Min))
+	b := block_pos_to_region(point_to_pos2d(area.Max))
 
 	for i := a.X; i <= b.X; i++ { // iterate over x
 		for h := a.Z; h <= b.Z; h++ { // iterate over z

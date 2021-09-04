@@ -12,7 +12,7 @@ import (
 // area: image.Rectangle of the area
 func draw_map(chn chan mappixel, filename string, area image.Rectangle) {
 	img := image.NewRGBA(area)
-	pixels := calc_pixels(pos2d_from_Point(img.Rect.Min), pos2d_from_Point(img.Rect.Max))
+	pixels := calc_pixels(point_to_pos2d(img.Rect.Min), point_to_pos2d(img.Rect.Max))
 
 	for v := range chn {
 		if v == nilpixel {
@@ -31,7 +31,7 @@ func draw_map(chn chan mappixel, filename string, area image.Rectangle) {
 	f.Close()
 }
 
-func render_chunk(chunk chunk_meta, region []byte, chn chan mappixel, begin pos2d) {
+func render_chunk(chunk chunk_meta, region []byte, chn chan mappixel) {
 	c, err := load_chunk(chunk, region)
 	if err != nil || len(c.Level.Sections) == 0 {
 		chn <- nilpixel
@@ -39,8 +39,8 @@ func render_chunk(chunk chunk_meta, region []byte, chn chan mappixel, begin pos2
 	}
 	vis := visible_blocks(c)
 
-	x_off := (16 * chunk.x) - begin.X
-	z_off := (16 * chunk.z) - begin.Z
+	x_off := (16 * chunk.x)
+	z_off := (16 * chunk.z)
 
 	for xi, x := range vis {
 		for zi, z := range x {
