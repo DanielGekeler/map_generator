@@ -1,17 +1,40 @@
 package main
 
 import (
+	"image"
+	"map_generator/src/grid"
 	"os"
 )
 
-const filepath = "region/r.0.0.mca"
+const filepath = "region/"
 
 func main() {
-	pos1 := pos2d{0, 0}
-	pos2 := pos2d{511, 511}
+	pos1 := pos2d{-100, -100}
+	pos2 := pos2d{100, 100}
+	img_area := image_area(pos1, pos2)
+
+	regions := needed_regions(img_area)
+	chunks := needed_chunks(point_to_pos2d(img_area.Min), point_to_pos2d(img_area.Max))
+
 	pixelpipe := make(chan mappixel)
 
-	raw_region, _ := os.ReadFile(filepath) // fully read a region file => []byte
+	for _, r := range regions {
+		file, _ := os.ReadFile(filepath + region_filename(r))
+		raw_chunks := parse_chunks_from_region(file)
+
+		for _, c := range chunks {
+			if (r.X != grid.AbsGrid(c.X*16, grid.Region)) ||
+				(r.Z != grid.AbsGrid(c.Z*16, grid.Region)) {
+				continue
+			}
+			i := calculate_chunk_index(c.X, c.Z)
+			go render_chunk(raw_chunks[i], file, pixelpipe)
+		}
+	}
+
+	draw_map(pixelpipe, "img/test6.png", img_area)
+
+	/*raw_region, _ := os.ReadFile(filepath) // fully read a region file => []byte
 	chunks := parse_chunks_from_region(raw_region)
 
 	for _, c := range needed_chunks(pos1, pos2) {
@@ -20,7 +43,7 @@ func main() {
 	}
 
 	pixels := calc_pixels(pos1, pos2)
-	draw_map(pixelpipe, "img/test6.png", pos2.X-pos1.X+1, pos2.Z-pos1.Z+1, pixels)
+	draw_map(pixelpipe, "img/test6.png", pos2.X-pos1.X+1, pos2.Z-pos1.Z+1, pixels)*/
 }
 
 type chunk_meta struct {
@@ -43,6 +66,10 @@ type chunk2d [16][16]string
 
 // pos2d is used to strore a 2 dimensional position
 type pos2d struct{ X, Z int }
+
+func point_to_pos2d(p image.Point) pos2d {
+	return pos2d{p.X, p.Y}
+}
 
 // describe a single pixel on a map (pos & color)
 type mappixel struct{ x, z, color int }
