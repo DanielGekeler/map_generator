@@ -1,6 +1,7 @@
 package main
 
 import (
+	"map_generator/src/position"
 	"os"
 )
 
@@ -34,6 +35,8 @@ type chunk_meta struct {
 	// 2: Zlib (RFC1950) DEFAULT
 	// 3: uncompressed (unused in practice)
 	compression int
+
+	pos position.Pos // position of the chunk
 }
 
 // chunk2d is a 2d slice of namespaced block IDs
